@@ -1,69 +1,67 @@
-import pyodbc
 import json
 import requests
 import config
+import constants
+import re
+import databaseActions as DB
 
 def main():
-	ticker = readTicker()
-	while (ticker != 'close'):
-		api_response = getTicker(ticker)
-		print('You pulled data on', api_response["data"]["symbol"], api_response["data"]["name"])
-		key = checkProfile(api_response["data"]["symbol"])
-		if key == False:
-			key = createProfile(api_response)
-		insertData(api_response, key)
-		ticker = readTicker()
+	userInput = inputAction()
+	while (userInput != 'close'):
+		if userInput == 'help':
+			showOptions()
+		elif userInput == 'data':
+			ticker = inputTicker()
+			api_response = getData(ticker)
+			print('You pulled data on',
+			  api_response["data"]["symbol"], api_response["data"]["name"])
+			key = DB.checkProfile(api_response["data"]["symbol"])
+			if key == False:
+				key = DB.createProfile(api_response)
+			DB.insertData(api_response, key)
+		else:
+			print("Invalid action entered. Type 'help' to see available actions.")
+		userInput = inputAction()
 
-def insertData(api_response, key):
-	cursor, cnxn = connect()
-	x = 0
-	while x < 100:
-		cursor.execute("insert into dailyResults(DR_SP, DR_High, DR_Low, DR_Close, DR_Date) values (?, ?, ?, ?, ?)", key, api_response["data"]["eod"][x]["high"], api_response["data"]["eod"][x]["low"], api_response["data"]["eod"][x]["close"], api_response["data"]["eod"][x]["date"])
-		cnxn.commit()
-		x += 1
+def inputAction():
+	while True:
+		action = input("Please enter select action (enter 'help' for options): ")
+		if not re.match("^[A-Za-z]*$", action):
+			print("Error! Only text can be entered!")
+		else:
+			break
+	return action
 
-def checkProfile(symbol):
-	cursor, cnxn = connect()
-	cursor.execute("select SP_PK from stockProfile where SP_Symbol = ?", symbol)
-	row = cursor.fetchone()
-	if row:
-		print(symbol, 'already exists.')
-		return row.SP_PK
-	else:
-		print(symbol, 'not found.')
-		return False
-
-def createProfile(api_response):
-	cursor, cnxn = connect()
-	print('Creating', api_response["data"]["symbol"])
-	cursor.execute("insert into stockProfile(SP_Name, SP_Symbol) values (?, ?)", api_response["data"]["name"], api_response["data"]["symbol"])
-	cnxn.commit()
-	cursor.execute("select SP_PK from stockProfile where SP_Symbol = ?", api_response["data"]["symbol"])
-	row = cursor.fetchone()
-	return row.SP_PK
-
-def readTicker():
-	ticker = input("Please input your stock code or type 'close' to finish: ")
+def inputTicker():
+	while True:
+		code = input("Please enter stock code: ")
+		if not re.match("^[A-Za-z]*$", code):
+			print("Error! Only text can be entered!")
+		else:
+			break
+	while True:
+		exchange = input("Please enter exchange: ")
+		if not re.match("^[A-Za-z]*$", exchange):
+			print("Error! Only text can be entered!")
+		else:
+			break
+	ticker = code + '.' + exchange
+	print(ticker + ' entered.')
 	return ticker
 
-def getTicker(ticker):
+def getData(ticker):
 	params = {
 		'access_key': config.API_ACCESSKEY
 	}
-	url = 'http://api.marketstack.com/v1/tickers/' + ticker + '/eod'
-	# Call MarketStack
+	url = constants.BASE_URL + '/tickers/' + ticker + '/eod'
 	api_result = requests.get(url, params)
 	api_response = api_result.json()
 	return api_response
-	
-def connect():
-	server = config.DB_SERVER
-	database = config.DB_DATABASE
-	username = config.DB_USERNAME
-	password = config.DB_PASSWORD
-	cnxn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
-	cursor = cnxn.cursor()
-	return cursor, cnxn
 
-if __name__== "__main__":
+def showOptions():
+	print("help - Show available actions")
+	print("data - Collect data on a company")
+	print("close - Close program")
+
+if __name__ == "__main__":
 	main()
