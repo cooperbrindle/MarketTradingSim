@@ -4,33 +4,40 @@ import requests
 import config
 
 def main():
-	ticker = input("Please input your stock code: ")
+	ticker = readTicker()
+	while (ticker != 'close'):
+		api_response = getTicker(ticker)
+		print('You pulled data on', api_response["data"]["symbol"], api_response["data"]["name"])
+		key = stockProfile(api_response)
+		insertData(api_response, key)
+		ticker = readTicker()
 
-	api_response = getTicker(ticker)
+def insertData(api_response, key):
+	cursor, cnxn = connect()
+	x = 0
+	while x < 100:
+		cursor.execute("insert into dailyResults(DR_SP, DR_High, DR_Low, DR_Close, DR_Date) values (?, ?, ?, ?, ?)", key, api_response["data"]["eod"][x]["high"], api_response["data"]["eod"][x]["low"], api_response["data"]["eod"][x]["close"], api_response["data"]["eod"][x]["date"])
+		cnxn.commit()
+		x += 1
 
-	print('You pulled data on', api_response["data"]["symbol"], api_response["data"]["name"])
-	#Check if company exists and create
+def stockProfile(api_response):
 	cursor, cnxn = connect()
 	cursor.execute("select SP_PK from stockProfile where SP_Symbol = ?", api_response["data"]["symbol"])
 	row = cursor.fetchone()
-
 	if row:
-		key = row.SP_PK
 		print(api_response["data"]["symbol"], 'already exists.')
+		return row.SP_PK
 	else:
 		print('Creating', api_response["data"]["symbol"])
 		cursor.execute("insert into stockProfile(SP_Name, SP_Symbol) values (?, ?)", api_response["data"]["name"], api_response["data"]["symbol"])
 		cnxn.commit()
 		cursor.execute("select SP_PK from stockProfile where SP_Symbol = ?", api_response["data"]["symbol"])
 		row = cursor.fetchone()
-		key = row.SP_PK
+		return row.SP_PK
 
-	#Insert data
-	x = 0
-	while x < 100:
-		cursor.execute("insert into dailyResults(DR_SP, DR_High, DR_Low, DR_Close, DR_Date) values (?, ?, ?, ?, ?)", key, api_response["data"]["eod"][x]["high"], api_response["data"]["eod"][x]["low"], api_response["data"]["eod"][x]["close"], api_response["data"]["eod"][x]["date"])
-		cnxn.commit()
-		x += 1
+def readTicker():
+	ticker = input("Please input your stock code or type 'close' to finish: ")
+	return ticker
 
 def getTicker(ticker):
 	params = {
