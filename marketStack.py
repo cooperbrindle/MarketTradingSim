@@ -8,7 +8,9 @@ def main():
 	while (ticker != 'close'):
 		api_response = getTicker(ticker)
 		print('You pulled data on', api_response["data"]["symbol"], api_response["data"]["name"])
-		key = stockProfile(api_response)
+		key = checkProfile(api_response["data"]["symbol"])
+		if key == False:
+			key = createProfile(api_response)
 		insertData(api_response, key)
 		ticker = readTicker()
 
@@ -20,20 +22,25 @@ def insertData(api_response, key):
 		cnxn.commit()
 		x += 1
 
-def stockProfile(api_response):
+def checkProfile(symbol):
 	cursor, cnxn = connect()
-	cursor.execute("select SP_PK from stockProfile where SP_Symbol = ?", api_response["data"]["symbol"])
+	cursor.execute("select SP_PK from stockProfile where SP_Symbol = ?", symbol)
 	row = cursor.fetchone()
 	if row:
-		print(api_response["data"]["symbol"], 'already exists.')
+		print(symbol, 'already exists.')
 		return row.SP_PK
 	else:
-		print('Creating', api_response["data"]["symbol"])
-		cursor.execute("insert into stockProfile(SP_Name, SP_Symbol) values (?, ?)", api_response["data"]["name"], api_response["data"]["symbol"])
-		cnxn.commit()
-		cursor.execute("select SP_PK from stockProfile where SP_Symbol = ?", api_response["data"]["symbol"])
-		row = cursor.fetchone()
-		return row.SP_PK
+		print(symbol, 'not found.')
+		return False
+
+def createProfile(api_response):
+	cursor, cnxn = connect()
+	print('Creating', api_response["data"]["symbol"])
+	cursor.execute("insert into stockProfile(SP_Name, SP_Symbol) values (?, ?)", api_response["data"]["name"], api_response["data"]["symbol"])
+	cnxn.commit()
+	cursor.execute("select SP_PK from stockProfile where SP_Symbol = ?", api_response["data"]["symbol"])
+	row = cursor.fetchone()
+	return row.SP_PK
 
 def readTicker():
 	ticker = input("Please input your stock code or type 'close' to finish: ")
