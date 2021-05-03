@@ -13,12 +13,11 @@ def main():
 		elif userInput == 'data':
 			ticker = inputTicker()
 			api_response = getData(ticker)
-			print('You pulled data on',
-			  api_response["data"]["symbol"], api_response["data"]["name"])
-			key = DB.checkProfile(api_response["data"]["symbol"])
-			if key == False:
-				key = DB.createProfile(api_response)
-			DB.insertData(api_response, key)
+			if validateResponse(api_response):
+				key = DB.checkProfile(api_response["data"]["symbol"])
+				if key == False:
+					key = DB.createProfile(api_response)
+				DB.insertData(api_response, key)
 		else:
 			print("Invalid action entered. Type 'help' to see available actions.")
 		userInput = inputAction()
@@ -60,6 +59,15 @@ def getData(ticker):
 	api_result = requests.get(url, params)
 	api_response = api_result.json()
 	return api_response
+
+def validateResponse(api_response):
+	if "error" in api_response:
+		print('Error reported by service:', api_response["error"]["code"])
+		return False
+	else:
+		print('You pulled data on',
+			api_response["data"]["symbol"], api_response["data"]["name"])
+		return True
 
 def showOptions():
 	print("help - Show available actions")
