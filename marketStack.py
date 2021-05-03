@@ -45,7 +45,10 @@ def inputTicker():
 			print("Error! Only text can be entered!")
 		else:
 			break
-	ticker = code + '.' + exchange
+	if exchange == 'XNAS' or exchange == 'xnas':
+		ticker = code
+	else:
+		ticker = code + '.' + exchange
 	print(ticker + ' entered.')
 	return ticker
 
