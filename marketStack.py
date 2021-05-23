@@ -1,78 +1,35 @@
-import json
 import requests
 import config
 import constants
-import re
-import databaseActions as DB
 
-def main():
-	userInput = inputAction()
-	while (userInput != 'close'):
-		if userInput == 'help':
-			showOptions()
-		elif userInput == 'data':
-			ticker = inputTicker()
-			api_response = getData(ticker)
-			if validateResponse(api_response):
-				key = DB.checkProfile(api_response["data"]["symbol"])
-				if key == False:
-					key = DB.createProfile(api_response)
-				DB.insertData(api_response, key)
-		else:
-			print("Invalid action entered. Type 'help' to see available actions.")
-		userInput = inputAction()
+def getEOD(symbol):
+	api_response = requests.get(constants.BASE_URL + '/eod', params = {
+		'access_key': config.API_ACCESSKEY,
+		'symbols': symbol
+	})
+	return api_response.json()
 
-def inputAction():
-	while True:
-		action = input("Please enter select action (enter 'help' for options): ")
-		if not re.match("^[A-Za-z]*$", action):
-			print("Error! Only text can be entered!")
-		else:
-			break
-	return action
-
-def inputTicker():
-	while True:
-		code = input("Please enter stock code: ")
-		if not re.match("^[A-Za-z]*$", code):
-			print("Error! Only text can be entered!")
-		else:
-			break
-	while True:
-		exchange = input("Please enter exchange: ")
-		if not re.match("^[A-Za-z]*$", exchange):
-			print("Error! Only text can be entered!")
-		else:
-			break
-	if exchange == 'XNAS' or exchange == 'xnas':
-		ticker = code
-	else:
-		ticker = code + '.' + exchange
-	print(ticker + ' entered.')
-	return ticker
-
-def getData(ticker):
-	params = {
+def getTicker(symbol, func):
+	api_response = requests.get(constants.BASE_URL + '/tickers/' + symbol + '/' + func, params = {
 		'access_key': config.API_ACCESSKEY
-	}
-	url = constants.BASE_URL + '/tickers/' + ticker + '/eod'
-	api_result = requests.get(url, params)
-	api_response = api_result.json()
-	return api_response
+	})
+	return api_response.json()
 
-def validateResponse(api_response):
-	if "error" in api_response:
-		print('Error reported by service:', api_response["error"]["code"])
-		return False
-	else:
-		print('You pulled data on',
-			api_response["data"]["symbol"], api_response["data"]["name"])
-		return True
+def getExchanges():
+	api_response = requests.get(constants.BASE_URL + '/exchanges', params = {
+		'access_key': config.API_ACCESSKEY
+	})
+	return api_response.json()
 
-def showOptions():
-	print("help - Show available actions")
-	print("data - Collect data on a company")
-	print("close - Close program")
+def getIntraday():
+	pass
 
-if __name__ == "__main__":
-	main()
+def getSplits():
+	pass
+
+def getCurrencies():
+	pass
+
+def getTimezones():
+	pass
+
