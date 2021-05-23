@@ -1,24 +1,22 @@
 import pyodbc
-import json
 import config
 
-def insertData(api_response, key):
+def insertData(data, key):
 	cursor, cnxn = connect()
 	x = 0
-	while x < 100:
+	for day in data:
 		cursor.execute("insert into dailyResults(DR_SP, DR_High, DR_Low, DR_Close, DR_Date) values (?, ?, ?, ?, ?)", key,
-					   api_response["data"]["eod"][x]["high"], api_response["data"]["eod"][x]["low"], api_response["data"]["eod"][x]["close"], api_response["data"]["eod"][x]["date"])
+					   day["high"], day["low"], day["close"], day["date"])
 		cnxn.commit()
-		x += 1
 
-def createProfile(api_response):
+def createProfile(data):
 	cursor, cnxn = connect()
-	print('Creating', api_response["data"]["symbol"])
+	print('Creating', data["symbol"])
 	cursor.execute("insert into stockProfile(SP_Name, SP_Symbol) values (?, ?)",
-				   api_response["data"]["name"], api_response["data"]["symbol"])
+				   data["name"], data["symbol"])
 	cnxn.commit()
 	cursor.execute("select SP_PK from stockProfile where SP_Symbol = ?",
-				   api_response["data"]["symbol"])
+				   data["symbol"])
 	row = cursor.fetchone()
 	return row.SP_PK
 
