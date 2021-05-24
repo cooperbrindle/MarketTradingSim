@@ -33,3 +33,9 @@ def getCurrencies():
 def getTimezones():
 	pass
 
+def validateResponse(api_response):
+	if "error" in api_response:
+		print('Error reported by service:', api_response["error"]["message"])
+		return False
+	else:
+		return True
