@@ -19,20 +19,20 @@ def menuControl(userInput):
 	elif userInput == 'add-ticker':
 		ticker = inputTicker()
 		api_response = api.getTicker(ticker, 'eod')
-		addTicker(api_response)
+		if api.validateResponse(api_response):
+			addTicker(api_response["data"])
 	elif userInput == 'exchanges':
 		api_response = api.getExchanges()
-		if validateResponse(api_response):
+		if api.validateResponse(api_response):
 			printExchanges(api_response["data"])
 	else:
 		print("Invalid action entered. Type 'help' to see available actions.")
 
-def addTicker(api_response):
-	if validateResponse(api_response):
-		key = DB.checkProfile(api_response["data"]["symbol"])
-		if key == False:
-			key = DB.createProfile(api_response["data"])
-		DB.insertData(api_response["data"]["eod"], key)
+def addTicker(ticker):
+	key = DB.checkProfile(ticker["symbol"])
+	if key == False:
+		key = DB.createProfile(ticker)
+	DB.insertData(ticker["eod"], key)
 
 def inputTicker():
 	while True:
@@ -60,13 +60,6 @@ def printExchanges(exchanges):
 			print('Name:' + exchange["name"] + ' | '
 				'Acronym:' + exchange["acronym"] + ' | '
 				'Code:' + exchange["mic"])
-
-def validateResponse(api_response):
-	if "error" in api_response:
-		print('Error reported by service:', api_response["error"]["message"])
-		return False
-	else:
-		return True
 
 def showOptions():
 	print("help: Show available actions")
