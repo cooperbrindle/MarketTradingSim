@@ -1,5 +1,5 @@
 import pyodbc
-import config as config
+import markettradingsim.config as config
 
 def insertData(data, key):
 	cursor, cnxn = connect()

@@ -1,6 +1,6 @@
 import requests
-import config as config
-import constants as constants
+import markettradingsim.config as config
+import markettradingsim.constants as constants
 
 def getEOD(symbol):
 	api_response = requests.get(constants.BASE_URL + '/eod', params = {
