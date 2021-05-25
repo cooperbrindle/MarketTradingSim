@@ -1,4 +1,4 @@
-import markettradingsim.markettradingsim as main
+import markettradingsim.main as main
 
 def test_inputAction(monkeypatch):
 	monkeypatch.setattr('builtins.input', lambda _: "help")
