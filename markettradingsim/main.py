@@ -1,6 +1,6 @@
 import re
-import marketStack as api
-import databaseActions as DB
+import markettradingsim.marketStack as api
+import markettradingsim.databaseActions as DB
 
 def main():
 	userInput = inputAction()

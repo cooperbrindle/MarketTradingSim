@@ -1,5 +1,5 @@
 import requests
-import marketStack
+import markettradingsim.marketStack as marketStack
 
 def test_validateResponse_error():
 	input = MockError.json()
