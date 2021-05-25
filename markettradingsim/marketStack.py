@@ -15,23 +15,26 @@ def getTicker(symbol, func):
 	})
 	return api_response.json()
 
-def getExchanges():
-	api_response = requests.get(constants.BASE_URL + '/exchanges', params = {
+def getAncillaryData(type):
+	api_response = requests.get(constants.BASE_URL + '/' + type , params = {
 		'access_key': config.API_ACCESSKEY
 	})
 	return api_response.json()
 
-def getIntraday():
-	pass
+def getIntraday(symbol, interval = "5min"):
+	api_response = requests.get(constants.BASE_URL + '/intraday', params = {
+		'access_key': config.API_ACCESSKEY,
+		'symbols': symbol,
+		'interval': interval
+	})
+	return api_response.json()
 
-def getSplits():
-	pass
-
-def getCurrencies():
-	pass
-
-def getTimezones():
-	pass
+def getSplits(symbol):
+	api_response = requests.get(constants.BASE_URL + '/splits', params = {
+		'access_key': config.API_ACCESSKEY,
+		'symbols': symbol
+	})
+	return api_response.json()
 
 def validateResponse(api_response):
 	if "error" in api_response:

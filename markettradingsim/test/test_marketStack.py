@@ -12,19 +12,13 @@ def test_validateResponse_EOD():
 def test_validateResponse_Ticker():
 	pass
 
-def test_validateResponse_Exchanges():
+def test_validateResponse_AncillaryData():
 	pass
 
 def test_validateResponse_Intraday():
 	pass
 
 def test_validateResponse_Splits():
-	pass
-
-def test_validateResponse_Currencies():
-	pass
-
-def test_validateResponse_Timezones():
 	pass
 
 def test_getEOD_error(monkeypatch):
@@ -55,10 +49,10 @@ def test_getTicker_error():
 def test_getTicker_ok():
 	pass
 
-def test_getExchanges_error():
+def test_getAncillaryData_error():
 	pass
 
-def test_getExchanges_ok():
+def test_getAncillaryData_ok():
 	pass
 
 def test_getIntraday_error():
@@ -71,18 +65,6 @@ def test_getSplits_error():
 	pass
 
 def test_getSplits_ok():
-	pass
-
-def test_getCurrencies_error():
-	pass
-
-def test_getCurrencies_ok():
-	pass
-
-def test_getTimezones_error():
-	pass
-
-def test_getTimezones_ok():
 	pass
 
 class MockError:

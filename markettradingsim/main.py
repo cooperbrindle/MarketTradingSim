@@ -22,7 +22,7 @@ def menuControl(userInput):
 		if api.validateResponse(api_response):
 			addTicker(api_response["data"])
 	elif userInput == 'exchanges':
-		api_response = api.getExchanges()
+		api_response = api.getAncillaryData(userInput)
 		if api.validateResponse(api_response):
 			printExchanges(api_response["data"])
 	else:
