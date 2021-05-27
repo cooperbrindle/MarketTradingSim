@@ -1,4 +1,4 @@
-import markettradingsim.databaseActions as DB
+#import markettradingsim.databaseActions as DB
 
-def test_checkProfile():
-    assert DB.checkProfile("GarbageProfile") == False
+#def test_checkProfile():
+#    assert DB.checkProfile("GarbageProfile") == False
