@@ -1,4 +1,5 @@
 import re
+from markettradingsim.constants import MENU_CONSTANTS, TEXTONLY
 import markettradingsim.marketStack as api
 import markettradingsim.databaseActions as DB
 
@@ -9,8 +10,7 @@ def main():
 		userInput = inputAction()
 
 def inputAction():
-	action = input(
-			"Please enter select action (enter 'help' for options): ")
+	action = input(MENU_CONSTANTS["WELCOME"])
 	return action
 
 def menuControl(userInput):
@@ -26,7 +26,7 @@ def menuControl(userInput):
 		if api.validateResponse(api_response):
 			printExchanges(api_response["data"])
 	else:
-		print("Invalid action entered. Type 'help' to see available actions.")
+		print(MENU_CONSTANTS["INVALID"])
 
 def addTicker(ticker):
 	key = DB.checkProfile(ticker["symbol"])
@@ -37,14 +37,14 @@ def addTicker(ticker):
 def inputTicker():
 	while True:
 		symbol = input("Please enter stock code: ")
-		if not re.match("^[A-Za-z]*$", symbol):
-			print("Error! Only text can be entered!")
+		if not re.match(TEXTONLY["REGEX"], symbol):
+			print(TEXTONLY["ERROR"])
 		else:
 			break
 	while True:
 		exchange = input("Please enter exchange: ")
-		if not re.match("^[A-Za-z]*$", exchange):
-			print("Error! Only text can be entered!")
+		if not re.match(TEXTONLY["REGEX"], exchange):
+			print(TEXTONLY["ERROR"])
 		else:
 			break
 	if exchange == 'XNAS' or exchange == 'xnas':
@@ -62,10 +62,8 @@ def printExchanges(exchanges):
 				'Code:' + exchange["mic"])
 
 def showOptions():
-	print("help: Show available actions")
-	print("add-ticker: Collect data on a company")
-	print("exchanges: Print list of available exchanges")
-	print("close: Close program")
+	for option in MENU_CONSTANTS["OPTIONS"] :
+		print(option["key"] + ': ' + option["message"])
 
 if __name__ == "__main__":
 	main()
