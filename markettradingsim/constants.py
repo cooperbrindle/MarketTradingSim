@@ -25,5 +25,9 @@ MENU_CONSTANTS = {
 			"key":"close",
 			"message":"Close program"
 		}
+	],
+	"FIELDS":[
+		"Stock Code",
+		"Exchange"
 	]
 }
