@@ -1,6 +1,4 @@
-import unittest
-import markettradingsim.databaseActions as DB
-import sys
+#import markettradingsim.databaseActions as DB
 
 #def test_checkProfile():
 #    assert DB.checkProfile("GarbageProfile") == False

@@ -3,11 +3,17 @@ import markettradingsim.config as config
 
 def insertData(data, key):
 	cursor, cnxn = connect()
-	x = 0
+	counter = 0
 	for day in data:
-		cursor.execute("insert into dailyResults(DR_SP, DR_High, DR_Low, DR_Close, DR_Date) values (?, ?, ?, ?, ?)", key,
-					   day["high"], day["low"], day["close"], day["date"])
-		cnxn.commit()
+		cursor.execute("select DR_PK from dailyResults where DR_SP = ? and DR_Date = ?", key, day["date"])
+		row = cursor.fetchone()
+		if not row:
+			cursor.execute("insert into dailyResults(DR_SP, DR_High, DR_Low, DR_Close, DR_Date) values (?, ?, ?, ?, ?)", key,
+						day["high"], day["low"], day["close"], day["date"])
+			cnxn.commit()
+			counter += 1
+	print(counter, 'new daily results added.')
+
 
 def createProfile(data):
 	cursor, cnxn = connect()
